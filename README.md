@@ -1,2 +1,2 @@
 # ExtendableVEM.jl
-Virtual Element Method with ExtendableGrids and ExtendableSparse
+Virtual Element Method on polygons with ExtendableGrids and ExtendableSparse, so far VEM of degree 1 for Poisson problem works
