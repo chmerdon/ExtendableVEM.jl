@@ -31,7 +31,7 @@ function main(; nrefs = 3, deform = 0.2 * 2.0^(-nrefs), Plotter = nothing)
 	x = solve_poisson(xgrid; rhs = rhs, g = g)
 
 	## calculate average values at polygon centers for plot on subtriangulation
-    subtriangulation = xgrid[SubTriangulation]
+	subtriangulation = xgrid[SubTriangulation]
 	ncells = num_cells(xgrid)
 	append!(x, zeros(Float64, ncells))
 	cellnodes = xgrid[CellNodes]

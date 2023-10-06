@@ -19,6 +19,7 @@ Sutton, O.J. The virtual element method in 50 lines of MATLAB. Numer Algor 75, 1
 """
 function solve_poisson(xgrid::ExtendableGrid{Tc, Ti}; penalty = 1e30, rhs = x -> 1, g = x -> 0, stab_coeff = 1) where {Tc, Ti}
 	ndofs = num_nodes(xgrid)
+	@info "Assembling P1-VEM (ndofs = $ndofs)..."
 	ncells = num_cells(xgrid)
 	coordinates::Matrix{Tc} = xgrid[Coordinates]
 	cellnodes::VariableTargetAdjacency{Ti} = xgrid[CellNodes]
@@ -46,6 +47,8 @@ function solve_poisson(xgrid::ExtendableGrid{Tc, Ti}; penalty = 1e30, rhs = x ->
 		center = view(cellcenters, :, cell)
 
 		## assembly auxiliary matrices for projector
+		## of VEM functions v_j to polynomial basis p_m
+		## where m is the monomial index
 		D = view(D_max, 1:nvemdofs, :)
 		B = view(B_max, :, 1:nvemdofs)
 		P = view(P_max, :, 1:nvemdofs)
@@ -58,13 +61,21 @@ function solve_poisson(xgrid::ExtendableGrid{Tc, Ti}; penalty = 1e30, rhs = x ->
 		for j ∈ 1:nvemdofs
 			vert = view(coordinates, :, vertices[j])
 			prev = view(coordinates, :, vertices[mod1(j - 1, nvemdofs)])
-			nextv = view(coordinates, :, vertices[mod1(j + 1, nvemdofs)])
-			normal[1] = nextv[2] - prev[2]
-			normal[2] = prev[1] - nextv[1]
+			next = view(coordinates, :, vertices[mod1(j + 1, nvemdofs)])
+			## calculate sum of normal vectors of two adjacent edges of vert
+			normal[1] = next[2] - prev[2]
+			normal[2] = prev[1] - next[1]
 			for m in 2:npolys
 				poly_degree = monomials[m]
 				monomial_grad = poly_degree ./ celldiameters[cell]
+				## D[j,m] = j-th dof evaluated for monomial p_m 
+				##		  = p_m(vert)
 				D[j, m] = dot(vert, monomial_grad) - dot(center, monomial_grad)
+				## B[m,j] = ∫_P ∇p_m⋅∇v_j dx
+				##        = - ∫_{∂P} ∇p_m⋅n v_j
+				##        = 0.5 * monomials[m] ⋅ (n_{j} + n_{j-1})
+				## where n_j is the normal vector for the edge
+				## between vertex j and j+1
 				B[m, j] = 0.5 * dot(monomial_grad, normal)
 			end
 		end
@@ -98,7 +109,10 @@ function solve_poisson(xgrid::ExtendableGrid{Tc, Ti}; penalty = 1e30, rhs = x ->
 	flush!(A)
 
 	## solve linear system
-	@time x = A \ b
+	@info "Solving..."
+	x = A \ b
+	residual = norm(A*x - b)
+	@info "...finished with residual = $residual"
 
 	return x
 end
