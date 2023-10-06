@@ -1,3 +1,22 @@
+"""
+````
+function solve_poisson(
+	xgrid::ExtendableGrid;
+	rhs::Function,
+	g::Function,
+	stab_coeff = 1
+	kwargs...)
+````
+
+Lowest order VEM solver for the Poisson problem with right-hand side rhs
+and full Dirichlet boundary data g, which can be functions of the form
+(x) -> some value depending on x.
+
+The main assembly loop is inspired by
+
+Sutton, O.J. The virtual element method in 50 lines of MATLAB. Numer Algor 75, 1141–1159 (2017). https://doi.org/10.1007/s11075-016-0235-3
+
+"""
 function solve_poisson(xgrid::ExtendableGrid{Tc, Ti}; penalty = 1e30, rhs = x -> 1, g = x -> 0, stab_coeff = 1) where {Tc, Ti}
 	ndofs = num_nodes(xgrid)
 	ncells = num_cells(xgrid)
