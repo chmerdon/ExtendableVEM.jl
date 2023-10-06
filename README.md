@@ -1,5 +1,6 @@
 # ExtendableVEM.jl
-Lowest order virtual Element Method on polygons with ExtendableGrids and ExtendableSparse for the 2D Poisson problem.
+Lowest order virtual Element Method on polygons for the 2D Poisson problem
+based on the grid manager [ExtendableGrids](https://github.com/j-fu/ExtendableGrids.jl) and the sparse matrix manager [ExtendableSparse](https://github.com/j-fu/ExtendableSparse.jl).
 
 
 The main assembly loop is inspired by:\
