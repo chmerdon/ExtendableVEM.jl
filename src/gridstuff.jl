@@ -210,9 +210,10 @@ function prepare_edges_polygons!(xgrid::ExtendableGrid{Tc,Ti}) where {Tc,Ti}
     end
 
     xFaceNodes = reshape(xFaceNodes,(2,Ti(length(xFaceNodes)/2)))
-    xgrid[FaceGeometries] = VectorOfConstants{ElementGeometries,Int}(facetype_of_cellface(Edge1D, 1), face)
+    xgrid[FaceGeometries] = VectorOfConstants{ElementGeometries,Int}(Edge1D, face)
     xgrid[CellFaces] = xCellFaces
     xgrid[CellFaceSigns] = xCellFaceSigns
     xgrid[FaceCells] = reshape(xFaceCells,(2,face))
     xgrid[FaceNodes] = xFaceNodes
+    return nothing
 end
